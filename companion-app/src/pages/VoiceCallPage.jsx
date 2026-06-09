@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PhoneOff, Mic, MicOff, Volume2 } from 'lucide-react';
+import { PhoneOff, Mic, MicOff, Volume2, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import './VoiceCallPage.css';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function VoiceCallPage() {
   const { characterId } = useParams();
@@ -25,16 +27,15 @@ export default function VoiceCallPage() {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const audioRef = useRef(null);
-  // Preload voices for Web Speech API so they are ready
+
   useEffect(() => {
     try {
       if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.getVoices(); // Triggers async load
+        window.speechSynthesis.getVoices();
       }
     } catch (e) {}
   }, []);
 
-  // Timer
   useEffect(() => {
     const timer = setInterval(() => {
       setCallDuration(prev => prev + 1);
@@ -72,7 +73,6 @@ export default function VoiceCallPage() {
         
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         
-        // Stop the microphone tracks to free the hardware
         stream.getTracks().forEach(track => track.stop());
 
         if (audioChunksRef.current.length === 0) {
@@ -81,20 +81,16 @@ export default function VoiceCallPage() {
         }
 
         try {
-          // Send to our backend to bypass ISP blocks
           const response = await fetch('/api/chat/transcribe', {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}` 
             },
-            // Send base64 audio since it's easier for the current backend route
             body: JSON.stringify({ audio: await blobToBase64(audioBlob) })
           });
           
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
           
           const data = await response.json();
           
@@ -118,7 +114,6 @@ export default function VoiceCallPage() {
     }
   };
 
-  // Helper function to convert Blob to Base64
   const blobToBase64 = (blob) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -239,73 +234,109 @@ export default function VoiceCallPage() {
   };
 
   const hangUp = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
+    if (audioRef.current) audioRef.current.pause();
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         try { mediaRecorderRef.current.stop(); } catch(e){}
     }
     navigate(`/chat/${characterId}`);
   };
 
+  const avatarSrc = user?.avatar && user.avatar !== '/image.png' ? user.avatar : '/image.png';
+
   return (
-    <div className="call-layout">
-      <div className="call-header">
-        <h2 style={{ textTransform: 'capitalize' }}>{user?.gfName || characterId}</h2>
-        <span className="call-time">{formatTime(callDuration)}</span>
-      </div>
+    <div className="flex flex-col h-screen bg-background overflow-hidden relative justify-between pb-8">
+      {/* Dynamic Background Overlay */}
+      <div className={`absolute inset-0 bg-primary/5 transition-opacity duration-1000 ${isAiSpeaking ? 'opacity-100' : 'opacity-0'}`} />
 
-      <div className="call-center">
-        <div className={`avatar-container ${isAiSpeaking ? 'speaking' : ''}`}>
-          <img 
-            src={user?.avatar && user.avatar !== '/image.png' ? user.avatar : '/image.png'} 
-            alt="Avatar" 
-            className="call-avatar" 
-            style={{ objectFit: 'cover' }} 
-          />
-          {isAiSpeaking && <div className="glow-ring"></div>}
-          {isAiSpeaking && <div className="glow-ring delayed"></div>}
+      {/* Header */}
+      <header className="flex flex-col items-center pt-12 pb-6 z-10 space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight capitalize text-foreground">
+          {user?.gfName || characterId}
+        </h2>
+        <div className="px-4 py-1.5 rounded-full bg-muted/50 border shadow-sm font-mono text-sm text-muted-foreground">
+          {formatTime(callDuration)}
+        </div>
+      </header>
+
+      {/* Center Avatar & Status */}
+      <main className="flex-1 flex flex-col items-center justify-center z-10 px-4">
+        <div className="relative w-48 h-48 sm:w-64 sm:h-64 mb-12">
+          {/* Animated Glow Rings when speaking */}
+          {isAiSpeaking && (
+            <>
+              <motion.div 
+                className="absolute inset-0 rounded-full border-2 border-primary"
+                animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              />
+              <motion.div 
+                className="absolute inset-0 rounded-full border-2 border-primary/50"
+                animate={{ scale: [1, 1.7, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ repeat: Infinity, duration: 2, delay: 0.5, ease: "easeInOut" }}
+              />
+            </>
+          )}
+          <Avatar className="w-full h-full border-4 border-card shadow-2xl relative z-10">
+            <AvatarImage src={avatarSrc} className="object-cover" />
+            <AvatarFallback className="text-6xl">{(user?.gfName || characterId || 'A')[0]}</AvatarFallback>
+          </Avatar>
         </div>
 
-        <div className="status-display">
-          {isListening && <Volume2 className="listening-icon" size={24} />}
-          <p className="status-text-large">{statusText}</p>
-          {transcript && <p className="transcript-text">"{transcript}"</p>}
+        <div className="flex flex-col items-center space-y-4 max-w-md text-center">
+          {isListening && <Volume2 className="h-6 w-6 text-primary animate-pulse" />}
+          <p className="text-xl font-medium text-muted-foreground">{statusText}</p>
+          {transcript && (
+            <p className="text-lg italic text-foreground mt-4 px-4 py-3 bg-muted/50 rounded-xl border border-border/50">
+              "{transcript}"
+            </p>
+          )}
         </div>
-      </div>
+      </main>
 
-      <div className="call-controls">
-        <button 
-          className={`control-btn mic-toggle ${isListening ? 'active' : ''}`} 
-          onClick={toggleMic}
+      {/* Controls */}
+      <div className="flex flex-col items-center gap-8 z-10 w-full max-w-md mx-auto px-6">
+        <div className="flex items-center justify-center gap-8">
+          <Button 
+            variant={isListening ? "default" : "secondary"} 
+            size="icon" 
+            className={`w-20 h-20 rounded-full shadow-lg transition-all ${isListening ? 'animate-pulse scale-105' : 'hover:scale-105'}`}
+            onClick={toggleMic}
+          >
+            {isListening ? <Mic className="h-8 w-8" /> : <MicOff className="h-8 w-8" />}
+          </Button>
+          
+          <Button 
+            variant="destructive" 
+            size="icon" 
+            className="w-20 h-20 rounded-full shadow-lg hover:scale-105 transition-all"
+            onClick={hangUp}
+          >
+            <PhoneOff className="h-8 w-8" />
+          </Button>
+        </div>
+
+        {/* Fallback TTS Tester */}
+        <form 
+          className="flex items-center gap-2 w-full mt-4 bg-card p-2 rounded-full border shadow-sm"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const form = e.target;
+            const text = form.elements.textMsg.value;
+            if (text.trim()) {
+              handleSendMessage(text);
+              form.reset();
+            }
+          }}
         >
-          {isListening ? <Mic size={28} /> : <MicOff size={28} />}
-        </button>
-        
-        <button className="control-btn hangup-btn" onClick={hangUp}>
-          <PhoneOff size={28} />
-        </button>
-      </div>
-
-      <div style={{ marginTop: '20px', width: '100%', maxWidth: '300px' }}>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          const form = e.target;
-          const text = form.elements.textMsg.value;
-          if (text.trim()) {
-            handleSendMessage(text);
-            form.reset();
-          }
-        }} style={{ display: 'flex', gap: '10px' }}>
-          <input 
+          <Input 
             name="textMsg" 
             type="text" 
-            placeholder="Type to test TTS..." 
-            style={{ flex: 1, padding: '10px', borderRadius: '20px', border: '1px solid #ccc', background: 'rgba(255,255,255,0.1)', color: 'white' }}
+            placeholder="Type to text-to-speech..." 
+            className="border-0 bg-transparent focus-visible:ring-0 px-4"
           />
-          <button type="submit" style={{ padding: '10px 20px', borderRadius: '20px', background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer' }}>
-            Send
-          </button>
+          <Button type="submit" size="icon" className="rounded-full shrink-0 h-10 w-10">
+            <Send className="h-4 w-4" />
+          </Button>
         </form>
       </div>
     </div>

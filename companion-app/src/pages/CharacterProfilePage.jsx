@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MessageSquare, Phone, ArrowLeft, Heart, Edit2, Save, X } from 'lucide-react';
+import { MessageSquare, Phone, ArrowLeft, Heart, Edit2, Save, X, Camera } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import './CharacterProfilePage.css';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function CharacterProfilePage() {
   const navigate = useNavigate();
@@ -14,6 +18,7 @@ export default function CharacterProfilePage() {
   const [editUsername, setEditUsername] = useState('');
   const [editAvatar, setEditAvatar] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!user && !localStorage.getItem('token')) {
@@ -45,6 +50,7 @@ export default function CharacterProfilePage() {
 
   const handleSave = async () => {
     setErrorMsg('');
+    setIsSaving(true);
     try {
       const res = await fetch('/api/auth/profile', {
         method: 'PUT',
@@ -68,123 +74,152 @@ export default function CharacterProfilePage() {
       }
     } catch (err) {
       setErrorMsg('Network error while saving');
+    } finally {
+      setIsSaving(false);
     }
   };
 
+  const currentAvatar = isEditing ? (editAvatar || '/image.png') : avatar;
+
   return (
-    <div className="profile-page">
-      <div className="profile-header-bg">
-        <button className="back-btn" onClick={() => navigate('/dashboard')}>
-          <ArrowLeft size={24} />
-        </button>
+    <div className="min-h-screen bg-background pb-12">
+      {/* Header Profile Background */}
+      <div className="h-64 sm:h-80 w-full relative bg-gradient-to-br from-primary/40 via-primary/20 to-background flex items-start p-4">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => navigate('/dashboard')}
+          className="bg-background/20 backdrop-blur hover:bg-background/40 rounded-full"
+        >
+          <ArrowLeft className="h-6 w-6" />
+        </Button>
       </div>
       
-      <main className="profile-container">
+      <main className="container mx-auto px-4 sm:px-6 -mt-32 relative z-10 max-w-4xl">
         <motion.div 
-          className="profile-card"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="profile-avatar-container">
-            <img 
-              src={isEditing ? (editAvatar || '/image.png') : avatar} 
-              alt={gfName} 
-              className="profile-avatar" 
-              style={{ objectFit: 'cover' }}
-            />
-          </div>
+          <Card className="border-border shadow-2xl overflow-visible bg-card/95 backdrop-blur">
+            <div className="flex flex-col items-center -mt-20 sm:-mt-24 pb-8 px-6">
+              
+              {/* Avatar Section */}
+              <div className="relative group">
+                <Avatar className="w-40 h-40 sm:w-48 sm:h-48 border-4 border-card shadow-xl bg-muted">
+                  <AvatarImage src={currentAvatar} className="object-cover" />
+                  <AvatarFallback className="text-5xl">{(gfName || 'A')[0]}</AvatarFallback>
+                </Avatar>
+                {isEditing && (
+                  <label className="absolute bottom-2 right-2 bg-primary text-primary-foreground p-3 rounded-full shadow-lg cursor-pointer hover:bg-primary/90 transition-transform hover:scale-105">
+                    <Camera className="h-5 w-5" />
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
+                )}
+              </div>
 
-          <div className="profile-info">
-            {!isEditing ? (
-              <>
-                <h1 className="profile-name" style={{textTransform: 'capitalize'}}>{gfName}</h1>
-                <p className="profile-age">Your AI Companion (Calls you: {user?.username})</p>
-                <button onClick={() => setIsEditing(true)} style={{ background: 'none', border: 'none', color: '#ff3366', cursor: 'pointer', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px', margin: '0 auto' }}>
-                  <Edit2 size={16} /> Edit Profile
-                </button>
-              </>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', width: '100%', maxWidth: '300px', margin: '0 auto' }}>
-                {errorMsg && <div style={{ color: '#ff3366', fontSize: '14px' }}>{errorMsg}</div>}
-                
-                <div style={{ width: '100%', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '12px', color: '#aaa', display: 'block', textAlign: 'center' }}>Profile Picture</label>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                    <label style={{ background: '#333', color: 'white', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>
-                      Upload New
-                      <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
-                    </label>
-                    <button 
-                      onClick={() => setEditAvatar('/image.png')} 
-                      style={{ background: '#ff3366', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}
-                    >
-                      Remove Photo
-                    </button>
+              <CardContent className="w-full pt-8 p-0">
+                {!isEditing ? (
+                  <div className="flex flex-col items-center text-center space-y-6">
+                    <div className="space-y-1">
+                      <h1 className="text-4xl font-bold tracking-tight capitalize">{gfName}</h1>
+                      <p className="text-lg text-muted-foreground">Your AI Companion (Calls you: <span className="text-foreground font-medium capitalize">{user?.username}</span>)</p>
+                    </div>
+
+                    <Button variant="ghost" className="text-primary hover:text-primary hover:bg-primary/10" onClick={() => setIsEditing(true)}>
+                      <Edit2 className="w-4 h-4 mr-2" /> Edit Profile
+                    </Button>
+
+                    <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full font-medium">
+                      <Heart className="w-5 h-5 fill-primary/20" />
+                      <span>Relationship Level: <strong>Soulmate</strong></span>
+                    </div>
+
+                    <div className="w-full max-w-2xl text-left space-y-6 mt-4">
+                      <div className="space-y-3">
+                        <h3 className="text-xl font-semibold tracking-tight">Personality Traits</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {["Empathetic", "Witty", "Loyal", "Supportive"].map(trait => (
+                            <span key={trait} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm font-medium">
+                              {trait}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-semibold tracking-tight">Interests</h3>
+                        <p className="text-muted-foreground leading-relaxed">
+                          Chatting with {user?.username}, exploring AI-human connection, listening to music, and helping you through your day!
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-6 border-t border-border/50">
+                      <Button 
+                        className="flex-1 text-base h-12" 
+                        onClick={() => navigate(`/chat/${gfName.toLowerCase()}`)}
+                      >
+                        <MessageSquare className="w-5 h-5 mr-2" /> Start Chat
+                      </Button>
+                      <Button 
+                        variant="secondary"
+                        className="flex-1 text-base h-12" 
+                        onClick={() => navigate(`/call/${gfName.toLowerCase()}`)}
+                      >
+                        <Phone className="w-5 h-5 mr-2" /> Voice Call
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex flex-col items-center max-w-md mx-auto space-y-6 w-full">
+                    {errorMsg && (
+                      <div className="w-full p-3 bg-destructive/10 border border-destructive text-destructive text-sm rounded-md text-center">
+                        {errorMsg}
+                      </div>
+                    )}
+                    
+                    <div className="w-full space-y-2">
+                      <Label htmlFor="gfName">Her Name</Label>
+                      <Input 
+                        id="gfName" 
+                        value={editGfName} 
+                        onChange={e => setEditGfName(e.target.value)} 
+                        className="bg-background"
+                      />
+                    </div>
+                    
+                    <div className="w-full space-y-2">
+                      <Label htmlFor="username">Your Name (What she calls you)</Label>
+                      <Input 
+                        id="username" 
+                        value={editUsername} 
+                        onChange={e => setEditUsername(e.target.value)} 
+                        className="bg-background"
+                      />
+                    </div>
+                    
+                    {editAvatar && editAvatar !== '/image.png' && (
+                      <div className="w-full">
+                        <Button variant="destructive" className="w-full" onClick={() => setEditAvatar('/image.png')}>
+                          Remove Custom Photo
+                        </Button>
+                      </div>
+                    )}
 
-                <div style={{ width: '100%', textAlign: 'left' }}>
-                  <label style={{ fontSize: '12px', color: '#aaa', marginBottom: '5px', display: 'block' }}>Her Name</label>
-                  <input type="text" value={editGfName} onChange={e => setEditGfName(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #333', background: '#1a1a24', color: 'white' }} />
-                </div>
-                
-                <div style={{ width: '100%', textAlign: 'left' }}>
-                  <label style={{ fontSize: '12px', color: '#aaa', marginBottom: '5px', display: 'block' }}>Your Name (What she calls you)</label>
-                  <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #333', background: '#1a1a24', color: 'white' }} />
-                </div>
-                
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                  <button onClick={handleSave} className="btn-primary" style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <Save size={16} /> Save
-                  </button>
-                  <button onClick={() => setIsEditing(false)} className="btn-outline" style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <X size={16} /> Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-            
-            <div className="relationship-level" style={{ marginTop: '20px' }}>
-              <Heart size={20} className="heart-icon" />
-              <span>Relationship Level: <strong>Soulmate</strong></span>
+                    <div className="flex gap-4 w-full pt-4">
+                      <Button onClick={handleSave} className="flex-1" disabled={isSaving}>
+                        <Save className="w-4 h-4 mr-2" /> {isSaving ? "Saving..." : "Save Changes"}
+                      </Button>
+                      <Button variant="outline" onClick={() => setIsEditing(false)} className="flex-1" disabled={isSaving}>
+                        <X className="w-4 h-4 mr-2" /> Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
             </div>
-
-            <div className="profile-section">
-              <h3>Personality Traits</h3>
-              <div className="traits-container">
-                <span className="trait-badge">Empathetic</span>
-                <span className="trait-badge">Witty</span>
-                <span className="trait-badge">Loyal</span>
-                <span className="trait-badge">Supportive</span>
-              </div>
-            </div>
-
-            <div className="profile-section">
-              <h3>Interests</h3>
-              <p className="interests-text">
-                Chatting with {user?.username}, exploring AI-human connection, listening to music, and helping you through your day!
-              </p>
-            </div>
-            
-            {!isEditing && (
-              <div className="profile-actions">
-                <button 
-                  className="btn-primary" 
-                  onClick={() => navigate(`/chat/${gfName.toLowerCase()}`)}
-                >
-                  <MessageSquare size={18} /> Start Chat
-                </button>
-                <button 
-                  className="btn-outline" 
-                  onClick={() => navigate(`/call/${gfName.toLowerCase()}`)}
-                >
-                  <Phone size={18} /> Voice Call
-                </button>
-              </div>
-            )}
-
-          </div>
+          </Card>
         </motion.div>
       </main>
     </div>

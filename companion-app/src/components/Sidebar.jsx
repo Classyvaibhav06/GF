@@ -1,36 +1,65 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { MessageSquare, Users, Phone, Settings, User } from 'lucide-react';
-import './Sidebar.css';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 export default function Sidebar() {
+  const navItems = [
+    { to: "/dashboard", icon: <Users size={20} />, label: "Characters" },
+    { to: "/chats", icon: <MessageSquare size={20} />, label: "Chats" },
+    { to: "/calls", icon: <Phone size={20} />, label: "Voice Calls" },
+  ];
+
+  const bottomItems = [
+    { to: "/profile", icon: <User size={20} />, label: "Profile" },
+    { to: "/settings", icon: <Settings size={20} />, label: "Settings" },
+  ];
+
   return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">AI Companion</div>
-      <nav className="sidebar-nav">
-        <NavLink to="/dashboard" className="nav-item">
-          <Users size={20} />
-          <span>Characters</span>
-        </NavLink>
-        <NavLink to="/chats" className="nav-item">
-          <MessageSquare size={20} />
-          <span>Chats</span>
-        </NavLink>
-        <NavLink to="/calls" className="nav-item">
-          <Phone size={20} />
-          <span>Voice Calls</span>
-        </NavLink>
+    <aside className="hidden md:flex flex-col w-64 bg-card border-r h-screen sticky top-0">
+      <div className="h-16 flex items-center px-6 border-b">
+        <span className="text-xl font-bold tracking-tight text-primary">AI Companion</span>
+      </div>
+      
+      <nav className="flex-1 px-4 py-6 space-y-2">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium",
+                isActive 
+                  ? "bg-primary/10 text-primary" 
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )
+            }
+          >
+            {item.icon}
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
       
-      <div className="sidebar-bottom">
-        <NavLink to="/profile" className="nav-item">
-          <User size={20} />
-          <span>Profile</span>
-        </NavLink>
-        <NavLink to="/settings" className="nav-item">
-          <Settings size={20} />
-          <span>Settings</span>
-        </NavLink>
+      <div className="px-4 py-6 border-t space-y-2">
+        {bottomItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium",
+                isActive 
+                  ? "bg-primary/10 text-primary" 
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )
+            }
+          >
+            {item.icon}
+            {item.label}
+          </NavLink>
+        ))}
       </div>
     </aside>
   );

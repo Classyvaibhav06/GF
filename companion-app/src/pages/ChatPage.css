@@ -204,3 +204,35 @@
   color: var(--text-muted);
   cursor: not-allowed;
 }
+
+.mobile-back-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .chat-sidebar {
+    display: none;
+  }
+  .mobile-back-btn {
+    display: flex;
+  }
+  .chat-header {
+    padding: 1rem;
+  }
+  .chat-header-info h2 {
+    font-size: 1.2rem;
+  }
+  .chat-messages {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .message-wrapper {
+    max-width: 90%;
+  }
+  .chat-input-container {
+    padding: 1rem;
+  }
+  .chat-form {
+    padding: 0.3rem 0.8rem;
+  }
+}
