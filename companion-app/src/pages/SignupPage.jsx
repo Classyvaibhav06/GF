@@ -132,6 +132,7 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required 
+              minLength={6}
             />
           </div>
 
@@ -143,6 +144,7 @@ export default function SignupPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required 
+              minLength={6}
             />
           </div>
 
