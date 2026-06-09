@@ -82,7 +82,7 @@ export default function VoiceCallPage() {
 
         try {
           // Send to our backend to bypass ISP blocks
-          const response = await fetch('http://localhost:5000/api/chat/transcribe', {
+          const response = await fetch('/api/chat/transcribe', {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ export default function VoiceCallPage() {
     setStatusText('Thinking...');
     
     try {
-      const res = await fetch('http://localhost:5000/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -183,7 +183,7 @@ export default function VoiceCallPage() {
     setIsAiSpeaking(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/chat/tts', {
+      const res = await fetch('/api/chat/tts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
