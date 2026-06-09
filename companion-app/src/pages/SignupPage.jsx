@@ -37,12 +37,19 @@ export default function SignupPage() {
       setErrorMsg("Passwords don't match!");
       return;
     }
+    
+    if (password.length < 6) {
+      setErrorMsg("Password must be at least 6 characters long.");
+      return;
+    }
 
     try {
+      const finalAvatar = gfAvatar || "https://images.unsplash.com/photo-1660032109199-3867a5fe8476?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHJ1c3NpYW4lMjBnaXJsfGVufDB8fDB8fHww";
+      
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, gfName, email, password, avatar: gfAvatar })
+        body: JSON.stringify({ username, gfName, email, password, avatar: finalAvatar })
       });
       const data = await res.json();
       
