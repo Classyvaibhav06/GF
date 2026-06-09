@@ -1,0 +1,87 @@
+/* Dashboard.css */
+
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 2rem 3rem;
+  overflow-y: auto;
+}
+
+.dashboard-header {
+  margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.dashboard-card {
+  padding: 2rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.avatar-md {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: rgba(16, 185, 129, 0.1);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10B981;
+  border-radius: 50%;
+}
+
+.status-text {
+  color: #10B981;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.char-desc {
+  flex: 1;
+}
+
+.card-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.card-actions .btn-primary,
+.card-actions .btn-outline {
+  flex: 1;
+  text-align: center;
+}

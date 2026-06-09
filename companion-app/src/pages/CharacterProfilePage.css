@@ -1,0 +1,137 @@
+/* CharacterProfilePage.css */
+
+.profile-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+.profile-header-bg {
+  height: 250px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  position: relative;
+  padding: 2rem;
+}
+
+.back-btn {
+  color: white;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem 2rem;
+  margin-top: -100px;
+  position: relative;
+  z-index: 10;
+}
+
+.profile-card {
+  background-color: var(--card-bg);
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.profile-avatar-container {
+  margin-top: -80px;
+  margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 6px solid var(--card-bg);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.profile-name {
+  font-size: 2.5rem;
+  text-transform: capitalize;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(to right, #fff, var(--text-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.profile-age {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.relationship-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(236, 72, 153, 0.1);
+  color: #ec4899;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  margin-bottom: 3rem;
+  font-size: 0.95rem;
+}
+
+.profile-section {
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+.profile-section h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+.traits-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.trait-badge {
+  background-color: rgba(124, 58, 237, 0.15);
+  color: var(--accent);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+}
+
+.interests-text {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.profile-actions button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+}
