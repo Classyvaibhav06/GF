@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -22,6 +22,12 @@ function App() {
           <Route path="/call/:characterId" element={<VoiceCallPage />} />
           <Route path="/profile/:characterId" element={<CharacterProfilePage />} />
           <Route path="/profile" element={<CharacterProfilePage />} />
+          
+          {/* Temporary Redirects for unimplemented Sidebar items */}
+          <Route path="/chats" element={<Navigate to="/dashboard" />} />
+          <Route path="/calls" element={<Navigate to="/dashboard" />} />
+          <Route path="/settings" element={<Navigate to="/dashboard" />} />
+          <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </div>
     </AuthProvider>
